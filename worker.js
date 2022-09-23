@@ -18,7 +18,9 @@ export default {
   fetch: async (req, env) => {
     const { user, origin, requestId, method, body, time, pathSegments, query } = await env.CTX.fetch(req).then(res => res.json())
     let [method, target] = pathSegments
-    let url = 'https://' + target
+    let url = 'https://' + target == ':url' ? 'json.fyi/northwind.json' : target
+    const res = await fetch(url)
+    await env.BUCKET.put(target, res.body)
     return new Response(JSON.stringify({ api, method, url, user }, null, 2), { headers: { 'content-type': 'application/json; charset=utf-8' }})
   }
 }
