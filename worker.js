@@ -20,9 +20,9 @@ export default {
   fetch: async (req, env) => {
     const { user, origin, requestId, method, body, time, pathSegments, query } = await env.CTX.fetch(req).then(res => res.json())
     let [action, target] = pathSegments
-    let data = undefined
+    let data, url = undefined
     if (action == 'import') {
-      let url = 'https://' + (!target || target == ':url' ? 'json.fyi/northwind.json' : target)
+      url = 'https://' + (!target || target == ':url' ? 'json.fyi/northwind.json' : target)
       const res = await fetch(url)
       const text = await res.text()
       await env.BUCKET.put(target, text)
