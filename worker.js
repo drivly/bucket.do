@@ -20,7 +20,9 @@ export default {
     let [action, target] = pathSegments
     let url = 'https://' + (!target || target == ':url' ? 'json.fyi/northwind.json' : target)
     const res = await fetch(url)
-    await env.BUCKET.put(target, res.body, { httpMetadata: res.headers })
+    const text = await res.text()
+    await env.BUCKET.put(target, text)
+    // await env.BUCKET.put(target, res.body, { httpMetadata: res.headers })
     return new Response(JSON.stringify({ api, method, url, user }, null, 2), { headers: { 'content-type': 'application/json; charset=utf-8' }})
   }
 }
