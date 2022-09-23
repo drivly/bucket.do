@@ -7,6 +7,6 @@ services = [
   { binding = "CTX", service = "ctx-do", environment = "production" }
 ]
 
-[[r2_buckets]]
-binding = 'BUCKET' 
-bucket_name = 'https://b6641681fe423910342b9ffa1364c76d.r2.cloudflarestorage.com/bucket'
+# [[r2_buckets]]
+# binding = 'BUCKET' 
+# bucket_name = 'https://b6641681fe423910342b9ffa1364c76d.r2.cloudflarestorage.com/bucket'
