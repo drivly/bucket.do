@@ -5,6 +5,8 @@ export const api = {
   url: 'https://bucket.do/api',
   type: 'https://apis.do/storage',
   endpoints: {
+    list: 'https://bucket.do/list',
+    get: 'https://bucket.do/:id',
     import: 'https://bucket.do/import/:url',
     export: 'https://bucket.do/export/:url',
   },
@@ -18,11 +20,16 @@ export default {
   fetch: async (req, env) => {
     const { user, origin, requestId, method, body, time, pathSegments, query } = await env.CTX.fetch(req).then(res => res.json())
     let [action, target] = pathSegments
-    let url = 'https://' + (!target || target == ':url' ? 'json.fyi/northwind.json' : target)
-    const res = await fetch(url)
-    const text = await res.text()
-    await env.BUCKET.put(target, text)
+    let data = undefined
+    if (action == 'import') {
+      let url = 'https://' + (!target || target == ':url' ? 'json.fyi/northwind.json' : target)
+      const res = await fetch(url)
+      const text = await res.text()
+      await env.BUCKET.put(target, text)
+    } else {
+      data = await env.BUCKET.list()
+    }
     // await env.BUCKET.put(target, res.body, { httpMetadata: res.headers })
-    return new Response(JSON.stringify({ api, method, url, user }, null, 2), { headers: { 'content-type': 'application/json; charset=utf-8' }})
+    return new Response(JSON.stringify({ api, method, url, data, user }, null, 2), { headers: { 'content-type': 'application/json; charset=utf-8' }})
   }
 }
