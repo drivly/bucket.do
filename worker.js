@@ -17,12 +17,12 @@ export const api = {
 }
 
 export default {
-  fetch: async (req, env) => {
+  fetch: async (req, env, ctx) => {
     const { user, origin, requestId, method, body, time, pathSegments, query } = await env.CTX.fetch(req).then(res => res.json())
-    let [action, target] = pathSegments
+    let [action, ...target] = pathSegments
     let data, url = undefined
     if (action == 'import') {
-      url = 'https://' + (!target || target == ':url' ? 'json.fyi/northwind.json' : target)
+      url = 'https://' + (!target || target[0] == ':url' ? 'json.fyi/northwind.json' : target.join('/'))
       const res = await fetch(url)
       const length = res.headers.get('content-length')
       if (length) {
