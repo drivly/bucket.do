@@ -26,7 +26,7 @@ export default {
       const res = await fetch(url)
       length = res.headers.get('content-length')
       if (length) {
-        data = await env.MY_BUCKET.put(target, res.body, { httpMetadata: res.headers })
+        data = await env.BUCKET.put(target, res.body, { httpMetadata: res.headers })
       } else {
         const text = await res.text()
         await env.BUCKET.put(target, text)
