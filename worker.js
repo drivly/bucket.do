@@ -24,8 +24,13 @@ export default {
     if (action == 'import') {
       url = 'https://' + (!target || target == ':url' ? 'json.fyi/northwind.json' : target)
       const res = await fetch(url)
-      const text = await res.text()
-      await env.BUCKET.put(target, text)
+      const length = res.headers.get('content-length')
+      if (length) {
+        data = await env.MY_BUCKET.put(target, res.body, { httpMetadata: res.headers })
+      } else {
+        const text = await res.text()
+        await env.BUCKET.put(target, text)
+      }
     } else {
       data = await env.BUCKET.list()
     }
