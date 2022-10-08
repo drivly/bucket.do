@@ -20,11 +20,11 @@ export default {
   fetch: async (req, env, ctx) => {
     const { user, origin, requestId, method, body, time, pathSegments, query } = await env.CTX.fetch(req).then(res => res.json())
     let [action, ...target] = pathSegments
-    let data, url = undefined
+    let data, url, length = undefined
     if (action == 'import') {
       url = 'https://' + (!target || target[0] == ':url' ? 'json.fyi/northwind.json' : target.join('/'))
       const res = await fetch(url)
-      const length = res.headers.get('content-length')
+      length = res.headers.get('content-length')
       if (length) {
         data = await env.MY_BUCKET.put(target, res.body, { httpMetadata: res.headers })
       } else {
@@ -35,6 +35,6 @@ export default {
       data = await env.BUCKET.list()
     }
     // await env.BUCKET.put(target, res.body, { httpMetadata: res.headers })
-    return new Response(JSON.stringify({ api, method, url, data, user }, null, 2), { headers: { 'content-type': 'application/json; charset=utf-8' }})
+    return new Response(JSON.stringify({ api, method, url, data, length, user }, null, 2), { headers: { 'content-type': 'application/json; charset=utf-8' }})
   }
 }
