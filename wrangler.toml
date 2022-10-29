@@ -20,5 +20,5 @@ ctx-do = "../ctx.do"
 
 [[r2_buckets]]
 binding = 'BUCKET'
-bucket_name = 'no'
+bucket_name = 'bucket'
 
