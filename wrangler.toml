@@ -1,5 +1,5 @@
 name = "bucket-do"
-route = { pattern = "bucket.do/*", zone_name = "bucket.do" }
+# route = { pattern = "*o/*", zone_name = "bucket.do" }
 main = "worker.js"
 compatibility_date = "2022-08-23"
 
