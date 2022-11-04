@@ -102,9 +102,10 @@ export default {
       if (action == 'count') {
         let i = 0
         let cursor = undefined
+        var res = null
 
         do {
-          const res = await env.BUCKET.list({
+          res = await env.BUCKET.list({
             prefix: target.join('/'),
             limit: 1000,
             cursor: cursor,
