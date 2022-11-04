@@ -22,12 +22,12 @@ export default {
 			// Cant use CTX in local dev, disabling for now
 			const { user, origin, requestId, method, body, time, pathSegments, query, hostname } = await env.CTX.fetch(req).then(res => res.json())
 			let [action, ...target] = new URL(req.url).pathname.split('/').slice(1)
-			let data, url, length = undefined
+			let data, length = undefined
 			if (action == 'write') {
-				// URL is in the format of /import/url.com/to/fetch/filename.mp4
+				// URL is in the format of /write/url.com/to/fetch/filename.mp4
 				// We need to extract the URL
 				// Remove any query params too
-				url = 'https://' + (!target || target[0] == ':url' ? 'json.fyi/northwind.json' : target.join('/'))
+				let url = 'https://' + (!target || target[0] == ':url' ? 'json.fyi/northwind.json' : target.join('/'))
 				url = url.split('?')[0]
 
 				const res = await fetch(url)
@@ -38,7 +38,6 @@ export default {
 
 				if (length) {
 					ctx.waitUntil(env.BUCKET.put(key, res.body, { httpMetadata: res.headers }))
-					//data = await env.BUCKET.put(target.join('/'), res.body, { httpMetadata: res.headers })
 				} else {
 					const text = await res.text()
 					await env.BUCKET.put(key, text, { httpMetadata: res.headers })
@@ -48,8 +47,30 @@ export default {
 			}
 
 			if (action == 'read') {
-				url = (!target || target[0] == ':url' ? 'json.fyi/northwind.json' : target.join('/'))
+				let url = decodeURI(!target || target[0] == ':url' ? 'json.fyi/northwind.json' : target.join('/'))
+
+				// URL make contain string replacements with a target HTTP URL to fetch.
+				// The first segment of the replacement is the field we want to get from the HTTP body.
+				// In the example, we want to get `id` from pluck.do
+				// e.g. /read/json.fyi/${ data.results.0.id: pluck.do/id/db.do/Customers/0 }
+
+				const matches = url.match(/\$\{(.+?)\}/g)
+				if (matches) {
+					for (let match of matches) {
+						const [key, subreq] = match.replace(/\$\{|\}/g, '').split(':')
+						const res = await fetch(`https://` + subreq.trim())
+						const json = await res.json()
+						const value = key.trim().split('.').reduce((o, i) => o[i], json)
+						url = url.replace(match, value)
+					}
+				}
+
 				const res = await env.BUCKET.get(url)
+
+				if (!res) {
+					return new Response(`Not found:\nKey: ${url}`, { status: 404 })
+				}
+
 				const headers = new Headers(res.httpMetadata)
 
 				return new Response(res.body, {
@@ -61,6 +82,7 @@ export default {
 			if (action == 'list') {
 				const res = await env.BUCKET.list({
 					prefix: target.join('/'),
+					limit: 1000,
 					cursor: query.cursor,
 				})
 
@@ -70,9 +92,9 @@ export default {
 
 				data = {
 					results,
-					has_more: res.has_more,
+					has_more: res.truncated,
 					links: {
-						'next': `https://${hostname}/list/${target.join('/')}?cursor=${res.nextCursor}`
+						'next': `https://${hostname}/list/${target.join('/')}?cursor=${res.cursor}`
 					}
 				}
 			}
@@ -82,9 +104,9 @@ export default {
 			}
 
 			// await env.BUCKET.put(target, res.body, { httpMetadata: res.headers })
-			return new Response(JSON.stringify({ api, method, url, data, length, user }, null, 2), { headers: { 'content-type': 'application/json; charset=utf-8' }})
+			return new Response(JSON.stringify({ api, data, length, user }, null, 2), { headers: { 'content-type': 'application/json; charset=utf-8' }})
 		} catch (e) {
-			return new Response(JSON.stringify({ api, error: e.message }, null, 2), { headers: { 'content-type': 'application/json; charset=utf-8' }})
+			return new Response(JSON.stringify({ api, error: e.message, stack: e.stack }, null, 2), { headers: { 'content-type': 'application/json; charset=utf-8' }})
 		}
 		
 	},

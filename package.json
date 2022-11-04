@@ -4,7 +4,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "esbuild worker.js --bundle --format=esm --outfile=dist/index.mjs",
-		"dev": "npx miniflare@2.11.0 --watch",
+		"dev": "npx miniflare@2.11.0 --watch -p 8777",
 		"format": "prettier --write '**/*.{js,css,json,md}'"
 	},
 	"dependencies": {
