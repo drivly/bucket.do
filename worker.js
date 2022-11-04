@@ -99,6 +99,25 @@ export default {
 				}
 			}
 
+      if (action == 'count') {
+        let i = 0
+        let cursor = undefined
+
+        do {
+          const res = await env.BUCKET.list({
+            prefix: target.join('/'),
+            limit: 1000,
+            cursor: cursor,
+          })
+
+          i += res.objects.length
+          cursor = res.cursor
+        } while (res.truncated)
+
+        data = { count: i }
+        
+      }
+
 			if (action == 'delete') {
 				data = await env.BUCKET.delete((!target || target[0] == ':url' ? 'json.fyi/northwind.json' : target.join('/')))
 			}
