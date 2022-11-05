@@ -37,7 +37,7 @@ export default {
 				const key = query.filename || url.split('//').pop()
 
 				if (length) {
-					ctx.waitUntil(env.BUCKET.put(key, res.body, { httpMetadata: res.headers }))
+					await env.BUCKET.put(key, res.body, { httpMetadata: res.headers })
 				} else {
 					const text = await res.text()
 					await env.BUCKET.put(key, text, { httpMetadata: res.headers })
