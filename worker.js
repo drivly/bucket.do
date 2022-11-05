@@ -39,8 +39,6 @@ export default {
 					try {
 						res = await fetch(url)
 
-            console.log(res.status)
-
 						if (res.status == 200) {
 							break
 						} else {
@@ -62,7 +60,14 @@ export default {
 				const key = query.filename || url.split('//').pop()
 
 				if (length) {
-					await env.BUCKET.put(key, res.body, { httpMetadata: res.headers })
+          // Race a timeout against the fetch
+          // This will ensure the waiting for confirmation is limited to a max of 150ms
+          // However, if a user tries to verify the file exists and it didnt complete in 150ms,
+          // It will return 404.
+          console.log(await Promise.race([
+            new Promise(resolve => setTimeout(resolve, 150)),
+            env.BUCKET.put(key, res.body, { httpMetadata: res.headers })
+          ]))
 				} else {
 					const text = await res.text()
 					await env.BUCKET.put(key, text, { httpMetadata: res.headers })
