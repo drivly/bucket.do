@@ -27,10 +27,35 @@ export default {
 				// URL is in the format of /write/url.com/to/fetch/filename.mp4
 				// We need to extract the URL
 				// Remove any query params too
+				let tries = 0
+				let success = false
+				let res = null
+				
 				let url = 'https://' + (!target || target[0] == ':url' ? 'json.fyi/northwind.json' : target.join('/'))
 				url = url.split('?')[0]
 
-				const res = await fetch(url)
+				// Try to fetch the URL but if it fails, try again
+				while (tries < 5) {
+					try {
+						res = await fetch(url)
+
+            console.log(res.status)
+
+						if (res.status == 200) {
+							break
+						} else {
+              tries++
+							await new Promise(resolve => setTimeout(resolve, 1000 * tries))
+						}
+					} catch (e) {
+						tries++
+					}
+				}
+
+        if (!res) {
+          return new Response('Failed to fetch URL', { status: 400 })
+        }
+
 				length = res.headers.get('content-length')
 
 				// Create our key name from the URL
