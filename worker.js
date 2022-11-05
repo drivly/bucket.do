@@ -30,6 +30,8 @@ export default {
 				let tries = 0
 				let success = false
 				let res = null
+
+        const fetch_start = Date.now()
 				
 				let url = 'https://' + (!target || target[0] == ':url' ? 'json.fyi/northwind.json' : target.join('/'))
 				url = url.split('?')[0]
@@ -54,6 +56,9 @@ export default {
           return new Response('Failed to fetch URL', { status: 400 })
         }
 
+        const fetch_end = Date.now()
+        const r2_start = Date.now()
+
 				length = res.headers.get('content-length')
 
 				// Create our key name from the URL
@@ -66,7 +71,7 @@ export default {
 					await env.BUCKET.put(key, text, { httpMetadata: res.headers })
 				}
 
-				data = { key, url, length, writen: true }
+				data = { key, url, length, writen: true, tries, timing: { 'fetch': fetch_end - fetch_start, r2: Date.now() - r2_start } }
 			}
 
 			if (action == 'read') {
