@@ -150,14 +150,13 @@ export default {
 			if (action == 'delete') {
         const res = await env.BUCKET.list({
           prefix: target.join('/'),
-          limit: 1000,
-          cursor: cursor,
+          limit: 1000
         })
 
         for (let obj of res.objects) {
           await env.BUCKET.delete(obj.key)
         }
-        
+
         data = { deleted: res.objects.length }
 			}
 
