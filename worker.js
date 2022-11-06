@@ -148,7 +148,17 @@ export default {
       }
 
 			if (action == 'delete') {
-				data = await env.BUCKET.delete((!target || target[0] == ':url' ? 'json.fyi/northwind.json' : target.join('/')))
+        const res = await env.BUCKET.list({
+          prefix: target.join('/'),
+          limit: 1000,
+          cursor: cursor,
+        })
+
+        for (let obj of res.objects) {
+          await env.BUCKET.delete(obj.key)
+        }
+        
+        data = { deleted: res.objects.length }
 			}
 
 			// await env.BUCKET.put(target, res.body, { httpMetadata: res.headers })
