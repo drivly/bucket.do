@@ -23,6 +23,7 @@ export default {
 			const { user, origin, requestId, method, body, time, pathSegments, query, hostname } = await env.CTX.fetch(req).then(res => res.json())
 			let [action, ...target] = new URL(req.url).pathname.split('/').slice(1)
 			let data, length = undefined
+
 			if (action == 'write') {
 				// URL is in the format of /write/url.com/to/fetch/filename.mp4
 				// We need to extract the URL
@@ -106,6 +107,45 @@ export default {
 					headers: headers
 				})
 			}
+
+      if (action == 'exists') {
+				let url = decodeURI(!target || target[0] == ':url' ? 'json.fyi/northwind.json' : target.join('/'))
+
+				// URL make contain string replacements with a target HTTP URL to fetch.
+				// The first segment of the replacement is the field we want to get from the HTTP body.
+				// In the example, we want to get `id` from pluck.do
+				// e.g. /read/json.fyi/${ data.results.0.id: pluck.do/id/db.do/Customers/0 }
+
+				const matches = url.match(/\$\{(.+?)\}/g)
+				if (matches) {
+					for (let match of matches) {
+						const [key, subreq] = match.replace(/\$\{|\}/g, '').split(':')
+						const res = await fetch(`https://` + subreq.trim())
+						const json = await res.json()
+						const value = key.trim().split('.').reduce((o, i) => o[i], json)
+						url = url.replace(match, value)
+					}
+				}
+
+        // Fetches the body but only the first few bytes.
+        // If the body is empty, it will return 404
+				const res = await env.BUCKET.get(
+          url,
+          {
+            range: { length: 6 }
+          }
+        )
+
+				if (!res) {
+					return new Response(`Not found:\nKey: ${url}`, { status: 404 })
+				}
+
+				const headers = new Headers(res.httpMetadata)
+
+				return new Response('Exists', {
+					status: 200
+				})
+      }
 
 			if (action == 'list') {
 				const res = await env.BUCKET.list({
