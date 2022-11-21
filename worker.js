@@ -28,6 +28,7 @@ export default {
 				// URL is in the format of /write/url.com/to/fetch/filename.mp4
 				// We need to extract the URL
 				// Remove any query params too
+        const start = new Date()
 				let tries = 0
 				let success = false
 				let res = null
@@ -72,16 +73,24 @@ export default {
 					await env.BUCKET.put(key, text, { httpMetadata: res.headers })
 				}
 
+        ctx.waitUntil(
+          fetch(
+            `https://time.series.do/bucket-do-writes/write?value=${parseInt(Date.now() - start)}`
+          )
+        )
+
 				data = { key, url, length, writen: true, tries, timing: { 'fetch': fetch_end - fetch_start, r2: Date.now() - r2_start } }
 			}
 
 			if (action == 'read') {
 				let url = decodeURI(!target || target[0] == ':url' ? 'json.fyi/northwind.json' : target.join('/'))
 
-				// URL make contain string replacements with a target HTTP URL to fetch.
+				// URL may contain string replacements with a target HTTP URL to fetch.
 				// The first segment of the replacement is the field we want to get from the HTTP body.
 				// In the example, we want to get `id` from pluck.do
 				// e.g. /read/json.fyi/${ data.results.0.id: pluck.do/id/db.do/Customers/0 }
+
+        const start = new Date()
 
 				const matches = url.match(/\$\{(.+?)\}/g)
 				if (matches) {
@@ -99,6 +108,12 @@ export default {
 				if (!res) {
 					return new Response(`Not found:\nKey: ${url}`, { status: 404 })
 				}
+
+        ctx.waitUntil(
+          fetch(
+            `https://time.series.do/bucket-do-reads/write?value=${parseInt(Date.now() - start)}`
+          )
+        )
 
 				const headers = new Headers(res.httpMetadata)
 
