@@ -16,11 +16,23 @@ export const api = {
 	repo: 'https://github.com/drivly/bucket.do',
 }
 
+export const gettingStarted = [
+]
+
+export const examples = {
+  list: 'https://bucket.do/list/demo-files',
+  read: 'https://bucket.do/read/demo-files/demo.png',
+  write: 'https://bucket.do/write/nyc3.digitaloceanspaces.com/cerulean/screenshots/2022/12/firefox_GNlnCf9D3C.png?filename=demo-files/demo.png',
+  delete: 'https://bucket.do/delete/demo-files/demo.png',
+}
+
 export default {
 	fetch: async (req, env, ctx) => {
 		try {
 			// Cant use CTX in local dev, disabling for now
-			const { user, origin, requestId, method, body, time, pathSegments, query, hostname } = await env.CTX.fetch(req).then(res => res.json())
+			const { user, origin, requestId, method, body, time, pathSegments, query, hostname, root } = await env.CTX.fetch(req).then(res => res.json())
+      if (pathSegments[0] == 'api') return new Response(JSON.stringify({ api, gettingStarted, examples, user }, null, 2), { headers: { 'content-type': 'application/json; charset=utf-8' }})
+
 			let [action, ...target] = new URL(req.url).pathname.split('/').slice(1)
 			let data, length = undefined
 
