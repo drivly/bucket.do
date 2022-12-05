@@ -32,21 +32,21 @@ const testFilename = 'test.svg'
 export const tests = {
   testList: [
     // Delete the test file if it exists
-    'https://bucket.do/delete/tests/list/' + testFile,
+    'https://bucket.do/delete/tests/list/' + testFilename,
     // Ensure there is no file already in the bucket
     'https://assert.tests.do/status==200&body.data.results.length==0/bucket.do/list/tests/list/test.svg',
     // Write a file to the bucket
-    `https://assert.tests.do/status==200&body.data.key==tests%2Flist%2Ftest.svg/bucket.do/write/${testFile}%3Ffilename=tests/list/${testFilename}`,
+    `https://assert.tests.do/status==200&body.data.key==tests%2Flist%2Ftest.svg/bucket.do/write/${testFile}?filename=tests/list/${testFilename}`,
     // List the bucket
     'https://assert.tests.do/status==200&body.data.results.length==1/bucket.do/list/tests/list',
   ],
   testRead: [
     // Delete the test file if it exists
-    'https://bucket.do/delete/tests/read/' + testFile,
+    'https://bucket.do/delete/tests/read/' + testFilename,
     // Ensure there is no file already in the bucket
     'https://assert.tests.do/status==200&body.data.results.length==0/bucket.do/list/tests/read/test.svg',
     // Write a file to the bucket
-    `https://assert.tests.do/status==200&body.data.key==tests%2Fread%2Ftest.svg/bucket.do/write/${testFile}%3Ffilename=tests/read/${testFilename}`,
+    `https://assert.tests.do/status==200&body.data.key==tests%2Fread%2Ftest.svg/bucket.do/write/${testFile}?filename=tests/read/${testFilename}`,
     // Read the file from the bucket
     'https://assert.tests.do/status==200&body.data.key==tests%2Fread%2Ftest.svg/bucket.do/read/tests/read/test.svg',
   ]
