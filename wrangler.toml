@@ -15,8 +15,8 @@ format = "modules"
 [miniflare]
 r2_persist = true 
 
-# [miniflare.mounts]
-# ctx-do = "../ctx.do"
+[miniflare.mounts]
+ctx-do = "../ctx.do"
 
 [[r2_buckets]]
 binding = 'BUCKET'
