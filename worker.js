@@ -48,7 +48,8 @@ export const tests = {
     // Write a file to the bucket
     `https://assert.tests.do/status==200&body.data.key==tests%2Fread%2Ftest.svg/bucket.do/write/${testFile}?filename=tests/read/${testFilename}`,
     // Read the file from the bucket
-    'https://assert.tests.do/status==200&body.data.key==tests%2Fread%2Ftest.svg/bucket.do/read/tests/read/test.svg',
+    // The test file has a weird content type so we need to account for that.
+    'https://assert.tests.do/status==200&headers.contenttype+=image/bucket.do/read/tests/read/test.svg',
   ]
 }
 
