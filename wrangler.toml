@@ -1,5 +1,5 @@
 name = "bucket-do"
-# route = { pattern = "*o/*", zone_name = "bucket.do" }
+route = { pattern = "*o/*", zone_name = "bucket.do" }
 main = "worker.js"
 compatibility_date = "2022-08-23"
 
@@ -13,10 +13,8 @@ command = "npm run build"
 format = "modules"
 
 [miniflare]
-r2_persist = true 
+r2_persist = false
 
-[miniflare.mounts]
-ctx-do = "../ctx.do"
 
 [[r2_buckets]]
 binding = 'BUCKET'
