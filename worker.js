@@ -6,9 +6,9 @@ export const api = {
   type: 'https://apis.do/storage',
   endpoints: {
     list: 'https://bucket.do/list/:prefix+',
-    read: 'https://bucket.do/read/:idPath+',
+    read: 'https://bucket.do/read/:path+',
     write: 'https://bucket.do/write/:url+',
-    delete: 'https://bucket.do/delete/:idPath+',
+    delete: 'https://bucket.do/delete/:path+',
   },
   site: 'https://bucket.do',
   login: 'https://bucket.do/login',
