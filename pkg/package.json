@@ -1,0 +1,9 @@
+
+{
+  "dependencies": {
+    "typescript": "4.9.4"
+  },
+  "description": "bucket.do API - JS/TS Client",
+  "name": "@drivly/bucket.do",
+  "version": "0.0.1"
+}
